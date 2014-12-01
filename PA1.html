@@ -205,8 +205,11 @@ hr {
 
 <pre><code class="r">library(dplyr)
 library(magrittr)
+library(lubridate)
+
 unzip(&quot;activity.zip&quot;)
 activity &lt;- read.csv(&quot;activity.csv&quot;, stringsAsFactors = FALSE)
+activity &lt;- mutate(activity, date = ymd(date))
 </code></pre>
 
 <h2>What is mean total number of steps taken per day?</h2>
@@ -252,6 +255,36 @@ plot(average_steps ~ interval, data = steps_per_time, type = &quot;l&quot;)
 </code></pre>
 
 <h2>Imputing missing values</h2>
+
+<p>There are several R packages that help with imputing missing values. However, lets keep it simple, as the instruction suggest.
+First I thought taking the average of each day. However there are days without any value, which will have <code>NaN</code> as mean:</p>
+
+<pre><code class="r">average_steps_day &lt;- activity %&gt;%
+                     group_by(date) %&gt;%
+                     summarise(average = mean(steps, na.rm = TRUE))
+
+sum(is.nan(average_steps_day$average))
+</code></pre>
+
+<pre><code>## [1] 8
+</code></pre>
+
+<p>So, instead lets take the average for the 5 minute interval:</p>
+
+<pre><code class="r"># We have already calculated the average steps per interval in a previous
+# question
+
+activity &lt;- activity %&gt;%
+            left_join(steps_per_time, by = &quot;interval&quot;) 
+
+#I wish I would find a way to do this with dplyr instead :(
+
+for(i in seq_along(activity$steps)){
+  activity$steps[i] &lt;- ifelse(is.na(activity$steps[i]), 
+                              activity$average_steps[i], 
+                              activity$steps[i])
+}
+</code></pre>
 
 <h2>Are there differences in activity patterns between weekdays and weekends?</h2>
 
