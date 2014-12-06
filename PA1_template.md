@@ -4,7 +4,8 @@ Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
-```{r, message=FALSE}
+
+```r
 library(dplyr)
 library(magrittr)
 library(lubridate)
@@ -13,7 +14,6 @@ library(ggplot2)
 unzip("activity.zip")
 activity <- read.csv("activity.csv", stringsAsFactors = FALSE)
 activity <- mutate(activity, date = ymd(date))
-
 ```
 
 
@@ -21,7 +21,8 @@ activity <- mutate(activity, date = ymd(date))
 ## What is mean total number of steps taken per day?
 
 
-```{r}
+
+```r
 steps_per_day <- activity %>% 
                  group_by(date) %>%
                  summarise(total_steps = sum(steps, na.rm = TRUE)) %>%
@@ -29,19 +30,33 @@ steps_per_day <- activity %>%
 
 
 hist(x = steps_per_day)
-
-mean_steps <- mean(steps_per_day) %>% print
-
-median_steps <- median(steps_per_day) %>% print
-                 
 ```
 
-The average number of steps taken per day is `r mean_steps` and the median number of steps taken per day is `r median_steps`
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png) 
+
+```r
+mean_steps <- mean(steps_per_day) %>% print
+```
+
+```
+## [1] 9354.23
+```
+
+```r
+median_steps <- median(steps_per_day) %>% print
+```
+
+```
+## [1] 10395
+```
+
+The average number of steps taken per day is 9354.2295082 and the median number of steps taken per day is 10395
 
 ## What is the average daily activity pattern?
 
 
-```{r}
+
+```r
 steps_per_time <- activity %>%
                   group_by(interval) %>%
                   summarise(average_steps = mean(steps, na.rm = TRUE)) %>%
@@ -53,17 +68,23 @@ steps_per_time <- activity %>%
 #units between each row.
 
 plot(average_steps ~ minutes, data = steps_per_time, type = "l")
+```
 
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png) 
 
+```r
 #Note that I calculate the interval with max based on the original
 #representation and not on the minutes
 interval_with_max <- steps_per_time[[which.max(steps_per_time$average_steps), 
                                      "interval"]] %>%
                      print
-
 ```
 
-The 5 minute interval with the larger number of steps is the `r interval_with_max` interval.
+```
+## [1] 835
+```
+
+The 5 minute interval with the larger number of steps is the 835 interval.
 
 ## Imputing missing values
 
@@ -72,20 +93,23 @@ First I thought taking the average of each day. However there are days without a
 
 
 
-```{r}
 
+```r
 average_steps_day <- activity %>%
                      group_by(date) %>%
                      summarise(average = mean(steps, na.rm = TRUE))
 
 sum(is.nan(average_steps_day$average))
-            
+```
 
+```
+## [1] 8
 ```
 
 So, instead lets take the average for the 5 minute interval:
 
-```{r}
+
+```r
 # We have already calculated the average steps per interval in a previous
 # question
 
@@ -106,21 +130,34 @@ steps_per_day2 <- activity_no_na %>%
                   use_series(total_steps)
 
 hist(steps_per_day2)
-
-mean_steps2 <- mean(steps_per_day2) %>% print
-
-median_steps2 <- median(steps_per_day2) %>% print
-
-
 ```
 
-When imputing missing values with the average of each day, the mean steps per day becomes `r mean_steps2`, which represents a `r ifelse(mean_steps2 > mean_steps, "increase", "decrease")` from the case with missing values removed (`r mean_steps`). The median number of steps becomes `r median_steps2`, which represents a `r ifelse(median_steps2 > median_steps, "increase", "decrease")`, from the case with missing values removed (`r median_steps`).
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png) 
+
+```r
+mean_steps2 <- mean(steps_per_day2) %>% print
+```
+
+```
+## [1] 10766.19
+```
+
+```r
+median_steps2 <- median(steps_per_day2) %>% print
+```
+
+```
+## [1] 10766.19
+```
+
+When imputing missing values with the average of each day, the mean steps per day becomes 1.0766189 &times; 10<sup>4</sup>, which represents a increase from the case with missing values removed (9354.2295082). The median number of steps becomes 1.0766189 &times; 10<sup>4</sup>, which represents a increase, from the case with missing values removed (10395).
 
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r}
+
+```r
 activity_no_na <- activity_no_na %>%
                   mutate(weekpart = wday(date)) %>% #from lubridate package, returns a number
                   mutate(weekpart = factor(ifelse(weekpart == 1 | weekpart == 7, 
@@ -135,4 +172,6 @@ steps_per_time <- activity_no_na %>%
 ggplot(steps_per_time, aes(x = minutes, y = average_steps))+
   geom_line()+facet_grid( weekpart ~ .)
 ```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png) 
 
