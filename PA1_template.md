@@ -88,6 +88,16 @@ The 5 minute interval with the larger number of steps is the 835 interval.
 
 ## Imputing missing values
 
+```r
+rows_with_na <- sum(!complete.cases(activity)) %>% print
+```
+
+```
+## [1] 2304
+```
+
+There are a total of 2304 rows with missing values.
+
 There are several R packages that help with imputing missing values. However, lets keep it simple, as the instruction suggest.
 First I thought taking the average of each day. However there are days without any value, which will have `NaN` as mean:
 
@@ -132,7 +142,7 @@ steps_per_day2 <- activity_no_na %>%
 hist(steps_per_day2)
 ```
 
-![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png) 
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png) 
 
 ```r
 mean_steps2 <- mean(steps_per_day2) %>% print
@@ -173,5 +183,5 @@ ggplot(steps_per_time, aes(x = minutes, y = average_steps))+
   geom_line()+facet_grid( weekpart ~ .)
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png) 
+![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7-1.png) 
 
