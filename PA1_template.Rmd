@@ -66,6 +66,11 @@ interval_with_max <- steps_per_time[[which.max(steps_per_time$average_steps),
 The 5 minute interval with the larger number of steps is the `r interval_with_max` interval.
 
 ## Imputing missing values
+```{r}
+rows_with_na <- sum(!complete.cases(activity)) %>% print
+```
+
+There are a total of `r rows_with_na` rows with missing values.
 
 There are several R packages that help with imputing missing values. However, lets keep it simple, as the instruction suggest.
 First I thought taking the average of each day. However there are days without any value, which will have `NaN` as mean:
